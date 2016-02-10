@@ -50,6 +50,7 @@ Le choix de ces données fut fait de par la documentation sur le jeu de données
 
 ### Étape 4 & 5 : Algorithme de résolution utilisant Map Reduce
 
+#### Algorithme
 Voici l'algorithme utilisé pour résoudre le problème défini ci-dessus :
 
 ``` python
@@ -77,6 +78,47 @@ counted_tuples = data.map(lambda line: line.split("\t")) \
 
 print sum(pair[1] for pair in counted_tuples)
 ```
+#### Explications
+Notre algorithme est codé en python, utilisons la bibliothèque pyspark.
+
+Détail et explications de l'algorithme, lignes par lignes :
+
+* Initialisation du contexte, en indiquant le nom de l'application :
+``` python
+sc = SparkContext(appName="truckcount")` :
+```
+* Lecture du fichier contenant la table à traiter :
+``` python
+text_file = sc.textFile("/home/debian/data/data/generalvehicle.txt")`
+```
+*
+``` python
+file_header = text_file.first()
+data = text_file.filter(lambda x: x != file_header)
+```
+* Séparation du tableau en
+``` python
+data.map(lambda line: line.split("\t"))
+```
+* Filtrage des données par rapport
+``` python
+.filter(lambda x: x[5] >= '60' and x[5] <= '70' or x[5]==70 or x[5]==74 or x[5]==78 ) \
+.filter(lambda x: x[60] > 0)
+```
+* Séparation des données
+``` python
+.map(lambda x: x[5]) \
+.map(lambda x: (x,1))
+```
+* Réduction
+``` python
+.reduceByKey(add) \
+```
+* Récupération du calcul
+``` python
+.collect()
+```
+
 
 ### Informations utilisées
 
