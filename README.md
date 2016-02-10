@@ -68,7 +68,9 @@ text_file = sc.textFile("/home/debian/data/data/generalvehicle.txt")
 file_header = text_file.first()
 data = text_file.filter(lambda x: x != file_header)
 
-counted_tuples = data.map(lambda line: line.split("\t")) \
+parallelized_data = sc.parallelize(data)
+
+counted_tuples = parallelized_data.map(lambda line: line.split("\t")) \
                      .filter(lambda x: x[5] >= '60' and x[5] <= '70' or x[5]==70 or x[5]==74 or x[5]==78 ) \
                      .filter(lambda x: x[60] > 0) \
                      .map(lambda x: x[5]) \
@@ -91,16 +93,20 @@ sc = SparkContext(appName="truckcount")` :
 ``` python
 text_file = sc.textFile("/home/debian/data/data/generalvehicle.txt")`
 ```
-*
+* Suppression de la première ligne du jeu de données, qui contient
 ``` python
 file_header = text_file.first()
 data = text_file.filter(lambda x: x != file_header)
 ```
-* Séparation du tableau en
+* Parallélisation des traitements suivants sur les données
+``` python
+parallelized_data = sc.parallelize(data)
+```
+* Séparation des différentes colonnes du tableau
 ``` python
 data.map(lambda line: line.split("\t"))
 ```
-* Filtrage des données par rapport
+* Filtrage des données par rapport aux prérequits définis précédement
 ``` python
 .filter(lambda x: x[5] >= '60' and x[5] <= '70' or x[5]==70 or x[5]==74 or x[5]==78 ) \
 .filter(lambda x: x[60] > 0)
@@ -110,15 +116,18 @@ data.map(lambda line: line.split("\t"))
 .map(lambda x: x[5]) \
 .map(lambda x: (x,1))
 ```
-* Réduction
+* Réduction par ajout de chaque élément similaire
 ``` python
 .reduceByKey(add) \
 ```
-* Récupération du calcul
+* Récupération du calcul, l'action _collect_ va provoquer l'exécution des transformations  _parallelize_, _filter_ et _map_
 ``` python
 .collect()
 ```
-
+* Somme des différents éléments, ce qui nous donnera le nombre de camions impliqués dans les accidents routiers
+``` python
+print sum(pair[1] for pair in counted_tuples)
+```
 
 ### Informations utilisées
 
