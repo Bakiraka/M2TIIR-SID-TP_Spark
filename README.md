@@ -9,12 +9,13 @@
 La première étape pour l'utilisation de Spark va consister en son installation. Pour cela, il va falloir se rendre sur [la page de téléchargement](http://spark.apache.org/downloads.html) de Spark, sélectionner la version de Spark, son package type (ici, nous choisirons _Pre-build for  Hadoop 2.6 and later_) et enfin télécharger et extraire le fichier compressé contenant Spark :
 
 Commandes réalisées pour le téléchargement :
-* `wget http://mirrors.ircam.fr/pub/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz `
+
+* `wget http://mirrors.ircam.fr/pub/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz`
 * `tar xvf spark-1.6.0-bin-hadoop2.6.tgz`
 
 Il est préférable d'avoir openjdk d'installé pour le bon fonctionnement de Spark, cela se fait sur Debian avec la commande :
-* `apt-get install openjdk-7-jre`
 
+* `apt-get install openjdk-7-jre`
 
 Démarrage d'un master : `./bin/start-master.sh`
 
@@ -30,6 +31,7 @@ Une fois l'installation de Spark réalisée, il est désormais possible de soume
 ou bien
 
 `./bin/spark-submit --master spark://sparkmachine:7077 examples/src/main/python/wordcount.py README.md`
+
 > Ici, "sparkmachine" fait référence au nom de la machine sur laquelle tourne Spark
 
 Il est également possible d'utiliser Spark en mode interactif avec les binaires **_spark-shell_** (en scala) ou **_pyspark_** (en python). Pour lancer le mode interactif en connexion avec le cluster (master/slaves), cette commande est utile : `./bin/spark-shell --master spark://IP:PORT`.
@@ -71,8 +73,12 @@ data = text_file.filter(lambda x: x != file_header)
 parallelized_data = sc.parallelize(data)
 
 counted_tuples = parallelized_data.map(lambda line: line.split("\t")) \
-                     .filter(lambda x: x[5] >= '60' and x[5] <= '70' or x[5]==70 or x[5]==74 or x[5]==78 ) \
-                     .filter(lambda x: x[60] > 0) \
+                     .filter(lambda x: x[5] >= '60' \
+                                   and x[5] <= '70' \
+                                    or x[5] == '70' \
+                                    or x[5] == '74' \
+                                    or x[5] == '78') \
+                     .filter(lambda x: x[60] > '0') \
                      .map(lambda x: x[5]) \
                      .map(lambda x: (x,1)) \
                      .reduceByKey(add) \
@@ -80,6 +86,7 @@ counted_tuples = parallelized_data.map(lambda line: line.split("\t")) \
 
 print sum(pair[1] for pair in counted_tuples)
 ```
+
 #### Explications
 Notre algorithme est codé en python, utilisons la bibliothèque pyspark.
 
@@ -108,8 +115,12 @@ data.map(lambda line: line.split("\t"))
 ```
 * Filtrage des données par rapport aux prérequits définis précédement
 ``` python
-.filter(lambda x: x[5] >= '60' and x[5] <= '70' or x[5]==70 or x[5]==74 or x[5]==78 ) \
-.filter(lambda x: x[60] > 0)
+.filter(lambda x: x[5] >= '60' \
+              and x[5] <= '70' \
+               or x[5] == '70' \
+               or x[5] == '74' \
+               or x[5] == '78') \
+.filter(lambda x: x[60] > '0') \
 ```
 * Séparation des données
 ``` python

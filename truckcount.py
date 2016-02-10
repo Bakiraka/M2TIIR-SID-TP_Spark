@@ -15,8 +15,12 @@ data = text_file.filter(lambda x: x != file_header)
 parallelized_data = sc.parallelize(data)
 
 counted_tuples = parallelized_data.map(lambda line: line.split("\t")) \
-                     .filter(lambda x: x[5] >= '60' and x[5] <= '70' or x[5]==70 or x[5]==74 or x[5]==78 ) \
-                     .filter(lambda x: x[60] > 0) \
+                     .filter(lambda x: x[5] >= '60' \
+                                   and x[5] <= '70' \
+                                    or x[5] == '70' \
+                                    or x[5] == '74' \
+                                    or x[5] == '78') \
+                     .filter(lambda x: x[60] > '0') \
                      .map(lambda x: x[5]) \
                      .map(lambda x: (x,1)) \
                      .reduceByKey(add) \
