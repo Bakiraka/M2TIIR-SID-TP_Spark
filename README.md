@@ -42,16 +42,17 @@ Le choix de ces données fut fait de par la documentation sur le jeu de données
 
 ### Étape 3 : Problème définit
 
-À partir des données choisies, nous avons définit comme problème de calculer le nombre total de gros camions impliqués dans les accidents recensés lors de l'étude. Ceux-ci sont référencés dans le fichier generalvehicle.txt, nous les identifiront grace aux colonnes GVEBodyType et RATWeight
+À partir des données choisies, nous avons définit comme problème de calculer le nombre total de gros camions impliqués dans les accidents recensés lors de l'étude. Ceux-ci sont référencés dans le fichier generalvehicle.txt, nous les identifiront grace aux colonnes GVEBodyType et RATWeight.
 
-The RATWeight is the multiplier used to produce national estimates from the data.  This variable
-appears on each data set.
-
+* La table _generalvehicle_ étant celle qui nous intéresse, elle contient les véhicules recencés dans les accidents (p205 du manuel des données)
+* La colonne _GVEBodyType_ étant le type de véhicule (différents code par type de véhicules, cf p.232 du manuel des données)
+* La colonne _RATWeight_ est un ratio utilisé dans le but de l'étude, seul	les valeurs suppérieurs à 0 sont à considérer comme valides
 
 ### Étape 4 & 5 : Algorithme de résolution utilisant Map Reduce
 
+Voici l'algorithme utilisé pour résoudre le problème défini ci-dessus :
 
-```
+``` python
 from pyspark import SparkContext
 #Module for reducebykey function
 from operator import add
@@ -60,7 +61,7 @@ from operator import add
 sc = SparkContext(appName="truckcount")
 
 # File reading
-text_file = sc.textFile("/home/debian/data/truck/generalvehicle.txt")
+text_file = sc.textFile("/home/debian/data/data/generalvehicle.txt")
 
 #filter out header
 file_header = text_file.first()
@@ -71,11 +72,10 @@ counted_tuples = data.map(lambda line: line.split("\t")) \
                      .filter(lambda x: x[60] > 0) \
                      .map(lambda x: x[5]) \
                      .map(lambda x: (x,1)) \
-                     .reduceByKey(add)
+                     .reduceByKey(add) \
+                     .collect()
 
-sum(pair[1] for pair in counted_tuples)
-
-counts.saveAsTextFile("~/count")
+print sum(pair[1] for pair in counted_tuples)
 ```
 
 ### Informations utilisées
